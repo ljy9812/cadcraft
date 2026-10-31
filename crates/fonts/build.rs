@@ -3,9 +3,11 @@
 //! empty, `CRAFT_FONTS` is empty and the build is unchanged. It only reads the local checkout
 //! (no network). A bad checkout is a warning, or an error with `CRAFT_FONTS_REQUIRED=1`.
 //!
-//! On wasm32 it embeds only BIZ UDPGothic Regular and the `Arab` faces (about 5.5 MB), to keep the
-//! web build within hosting limits (Cloudflare Pages: 25 MiB per file). The web build has no
-//! system fonts, so these are its only fallback for Japanese and Arabic-script text.
+//! On wasm32 it embeds only BIZ UDPGothic Regular, the `Arab` faces and the `Hans` interface face
+//! (about 10 MB), to keep the web build within hosting limits (Cloudflare Pages: 25 MiB per
+//! file). The web build has no system fonts, so these are its only fallback for Japanese,
+//! Arabic-script and Simplified Chinese text: without the Hans face (WenQuanYi Micro Hei) the
+//! zh interface renders as tofu.
 
 use std::fmt::Write as _;
 use std::path::PathBuf;
@@ -55,7 +57,11 @@ fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
             continue;
         }
         let arabic = scripts.split(',').any(|s| s.trim() == "Arab");
-        let web_face = (*family == "BIZ UDPGothic" && *style == "Regular") || arabic;
+        // Simplified Chinese interface faces (WenQuanYi Micro Hei, ~4.4 MiB) so the zh UI renders
+        // instead of tofu: the web build has no system-font fallback to lean on, and the desktop
+        // "one user-installed system font" channel does not exist in the browser.
+        let hans = scripts.split(',').any(|s| s.trim() == "Hans");
+        let web_face = (*family == "BIZ UDPGothic" && *style == "Regular") || arabic || hans;
         if wasm && !web_face {
             continue;
         }
