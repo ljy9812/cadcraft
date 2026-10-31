@@ -21,7 +21,7 @@ const URL_PATTERN: string = 'https://local.cadcraft/*';
 // four-suite-era storage-key forcing: that only took effect on the second
 // launch and polluted shared-bundle localStorage across app swaps. Apps that
 // render zh natively (lightcraft: ships zh_hans.otf) must keep this false.
-const FORCE_EN: boolean = true;
+const FORCE_EN: boolean = false;
 
 interface ExportMsg {
   t: string;
